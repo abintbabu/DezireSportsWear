@@ -1522,8 +1522,8 @@ a { text-decoration: none; color: inherit; }
 
 #custom-jersey-svg {
   width: 100%;
-  max-height: 340px;
-  transform: scale(1.35) translateY(-20px);
+  max-height: 305px;
+  transform: scale(1.22) translateY(-15px);
   filter: drop-shadow(0 15px 25px rgba(0,0,0,0.5));
   z-index: 10;
   transition: all 0.3s ease;
@@ -1935,6 +1935,44 @@ a { text-decoration: none; color: inherit; }
 }
 .wc-btn {
   pointer-events: none; /* Let card click drive the load */
+}
+
+@media (max-width: 768px) {
+  .whatsapp-fab {
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+  }
+  .whatsapp-fab svg { width: 30px; height: 30px; }
+}
+
+/* ============================================================
+   WHATSAPP FAB
+   ============================================================ */
+.whatsapp-fab {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  background: #25D366;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  z-index: 9999;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.whatsapp-fab svg {
+  width: 35px;
+  height: 35px;
+}
+.whatsapp-fab:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 8px 25px rgba(37, 211, 102, 0.4);
 }
 
 
