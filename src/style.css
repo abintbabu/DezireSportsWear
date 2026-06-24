@@ -366,6 +366,20 @@ a { text-decoration: none; color: inherit; }
   color: transparent;
 }
 
+.champions-text {
+  font-family: 'Permanent Marker', cursive;
+  background: linear-gradient(135deg, #FF3E83 0%, #FCE22A 50%, #00E5FF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  transform: rotate(-2deg);
+  margin-top: 0.5rem;
+  letter-spacing: 1px;
+  filter: drop-shadow(0 4px 12px rgba(255, 62, 131, 0.25));
+  font-size: 1.15em;
+  line-height: 1.1;
+}
+
 .hero-desc {
   font-size: 1.1rem;
   color: rgba(0,0,0,0.65);
