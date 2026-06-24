@@ -92,19 +92,144 @@
           </div>
         </div>
 
-        <div class="hero-visual reveal-right reveal-d1">
-          <div class="jersey-card">
-            <div class="jersey-front">
-              <div class="jersey-collar"></div>
-              <div class="jersey-body-shape">
-                <div class="jersey-stripe"></div>
-                <div class="jersey-num">10</div>
-                <div class="jersey-brand">DEZIRE</div>
-              </div>
+        <!-- ===================== INTERACTIVE KIT LAB ===================== -->
+        <div class="kit-lab-wrapper reveal-right">
+          <div class="kit-lab-container">
+            
+            <!-- Live Previewer -->
+            <div class="kit-lab-viewer">
+              <div class="canvas-glow"></div>
+              <svg id="custom-jersey-svg" viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <!-- Body Clip Path to contain patterns -->
+                  <clipPath id="body-clip">
+                    <path d="M 50 45 Q 100 65 150 45 L 145 220 L 55 220 Z" />
+                  </clipPath>
+
+                  <!-- Fabric Crease / Folds shading -->
+                  <linearGradient id="jersey-shading" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#ffffff" stop-opacity="0.2"/>
+                    <stop offset="35%" stop-color="#000000" stop-opacity="0.03"/>
+                    <stop offset="70%" stop-color="#000000" stop-opacity="0.12"/>
+                    <stop offset="100%" stop-color="#000000" stop-opacity="0.3"/>
+                  </linearGradient>
+
+                  <!-- Pattern 1: Vertical Stripes -->
+                  <pattern id="pat-stripes" width="30" height="240" patternUnits="userSpaceOnUse">
+                    <rect x="0" y="0" width="12" height="240" fill="var(--accent-color, #000000)" />
+                  </pattern>
+
+                  <!-- Pattern 2: Speed Chevrons -->
+                  <pattern id="pat-chevrons" width="40" height="40" patternUnits="userSpaceOnUse">
+                    <path d="M 0,10 L 20,30 L 40,10 L 40,20 L 20,40 L 0,20 Z" fill="var(--accent-color, #000000)" opacity="0.6"/>
+                  </pattern>
+
+                  <!-- Pattern 3: Tech Mesh Grid -->
+                  <pattern id="pat-mesh" width="16" height="16" patternUnits="userSpaceOnUse">
+                    <path d="M 8,0 L 16,8 L 8,16 L 0,8 Z" fill="none" stroke="var(--accent-color, #000000)" stroke-width="1.2" opacity="0.4"/>
+                  </pattern>
+                </defs>
+
+                <!-- Left Sleeve -->
+                <path id="jersey-sleeve-l" d="M 45 45 L 13 68 L 26 98 L 60 75 Z" fill="var(--primary-color, #FCE22A)" />
+                <path id="jersey-sleeve-l-accent" d="M 13 68 L 16 65 L 29 95 L 26 98 Z" fill="var(--accent-color, #000000)" />
+
+                <!-- Right Sleeve -->
+                <path id="jersey-sleeve-r" d="M 155 45 L 187 68 L 174 98 L 140 75 Z" fill="var(--primary-color, #FCE22A)" />
+                <path id="jersey-sleeve-r-accent" d="M 187 68 L 184 65 L 171 95 L 174 98 Z" fill="var(--accent-color, #000000)" />
+
+                <!-- Main Body -->
+                <path id="jersey-body" d="M 50 45 Q 100 65 150 45 L 145 220 L 55 220 Z" fill="var(--primary-color, #FCE22A)" />
+
+                <!-- Pattern Layer (Clipped to Body) -->
+                <g clip-path="url(#body-clip)">
+                  <rect id="jersey-pattern" x="20" y="20" width="160" height="210" fill="none" />
+                </g>
+
+                <!-- Folds / Lighting overlay -->
+                <path d="M 50 45 Q 100 65 150 45 L 145 220 L 55 220 Z" fill="url(#jersey-shading)" style="mix-blend-mode: multiply;" />
+
+                <!-- Collar - Crew style (default) -->
+                <path id="collar-crew" d="M 66 43 Q 100 68 134 43 Q 100 49 66 43 Z" fill="var(--accent-color, #000000)" />
+                <!-- Collar - V-neck style (hidden by default) -->
+                <path id="collar-v" d="M 66 43 L 100 74 L 134 43 Q 100 50 66 43 Z" fill="var(--accent-color, #000000)" style="display: none;" />
+
+                <!-- Name & Number Text -->
+                <text id="jersey-name" x="100" y="112" font-family="'Outfit', sans-serif" font-weight="900" font-size="12" fill="var(--text-color, #000000)" text-anchor="middle" letter-spacing="2">DEZIRE</text>
+                <text id="jersey-number" x="100" y="180" font-family="'Outfit', sans-serif" font-weight="900" font-size="60" fill="var(--text-color, #000000)" text-anchor="middle" letter-spacing="-2">10</text>
+              </svg>
+
+              <!-- Floating Badges -->
+              <div class="floating-badge badge-1">⚡ Live Customizer</div>
+              <div class="floating-badge badge-2">🏆 Premium Fit</div>
             </div>
-            <div class="floating-badge badge-1">⚡ Custom Print</div>
-            <div class="floating-badge badge-2">🏆 Premium Quality</div>
-            <div class="floating-badge badge-3">📦 Pan India</div>
+
+            <!-- Customizer Controls -->
+            <div class="kit-lab-controls">
+              <div class="controls-title">DEZIRE KIT LAB</div>
+              
+              <!-- Name & Number inputs -->
+              <div class="control-row-2">
+                <div class="control-group">
+                  <label for="custom-name">Jersey Name</label>
+                  <input type="text" id="custom-name" maxlength="12" value="DEZIRE" placeholder="e.g. MESSI">
+                </div>
+                <div class="control-group">
+                  <label for="custom-num">Number</label>
+                  <input type="text" id="custom-num" maxlength="3" value="10" placeholder="e.g. 7">
+                </div>
+              </div>
+
+              <!-- Color Selectors -->
+              <div class="control-group">
+                <label>Primary Color</label>
+                <div class="swatch-grid" id="primary-swatches">
+                  <button class="swatch-btn active" data-color="#FCE22A" style="background:#FCE22A;" title="Lemon Yellow"></button>
+                  <button class="swatch-btn" data-color="#0D0D0D" style="background:#0D0D0D;" title="Carbon Black"></button>
+                  <button class="swatch-btn" data-color="#FFFFFF" style="background:#FFFFFF; border:1px solid #ddd;" title="Alpine White"></button>
+                  <button class="swatch-btn" data-color="#003DA5" style="background:#003DA5;" title="Royal Blue"></button>
+                  <button class="swatch-btn" data-color="#D01515" style="background:#D01515;" title="Crimson Red"></button>
+                  <button class="swatch-btn" data-color="#008232" style="background:#008232;" title="Emerald Green"></button>
+                </div>
+              </div>
+
+              <div class="control-group">
+                <label>Accent Color</label>
+                <div class="swatch-grid" id="accent-swatches">
+                  <button class="swatch-btn" data-color="#FCE22A" style="background:#FCE22A;" title="Lemon Yellow"></button>
+                  <button class="swatch-btn active" data-color="#0D0D0D" style="background:#0D0D0D;" title="Carbon Black"></button>
+                  <button class="swatch-btn" data-color="#FFFFFF" style="background:#FFFFFF; border:1px solid #ddd;" title="Alpine White"></button>
+                  <button class="swatch-btn" data-color="#FFB300" style="background:#FFB300;" title="Athletic Gold"></button>
+                  <button class="swatch-btn" data-color="#D01515" style="background:#D01515;" title="Crimson Red"></button>
+                  <button class="swatch-btn" data-color="#00E5FF" style="background:#00E5FF;" title="Neon Cyan"></button>
+                </div>
+              </div>
+
+              <!-- Collar Toggles & Pattern Toggles -->
+              <div class="control-row-2">
+                <div class="control-group">
+                  <label for="custom-collar">Collar Type</label>
+                  <select id="custom-collar">
+                    <option value="crew">Crew Neck</option>
+                    <option value="vneck">V-Neck</option>
+                  </select>
+                </div>
+                <div class="control-group">
+                  <label for="custom-pattern">Pattern</label>
+                  <select id="custom-pattern">
+                    <option value="none">Solid (None)</option>
+                    <option value="stripes">Vertical Stripes</option>
+                    <option value="chevrons">Chevrons</option>
+                    <option value="mesh">Geometric Mesh</option>
+                  </select>
+                </div>
+              </div>
+
+              <button type="button" id="apply-to-roster-btn" class="apply-roster-btn">
+                Apply to Roster Form ↓
+              </button>
+            </div>
+
           </div>
         </div>
       </div>
@@ -309,51 +434,105 @@
           <h2 class="section-title dark">Built for Performance</h2>
           <p class="section-desc dark">Choose the fabric that matches your sport's demands and climate.</p>
         </div>
-        <div class="materials-grid">
-          <div class="material-card reveal-left" data-material="Polyester Dry-Fit" tabindex="0" role="button" aria-pressed="false">
-            <div class="material-badge">Most Popular</div>
-            <div class="material-icon-wrap">💧</div>
-            <h3>Polyester Dry-Fit</h3>
-            <p>High-performance moisture-wicking fabric ideal for intense outdoor sports. Keeps you cool and dry all game long.</p>
-            <div class="material-tags">
-              <span>Moisture Wicking</span>
-              <span>100–150 GSM</span>
-              <span>Quick Dry</span>
+
+        <div class="materials-flex-layout">
+          <!-- Left side: Material Cards -->
+          <div class="materials-grid">
+            <div class="material-card reveal-left" data-material="Polyester Dry-Fit" tabindex="0" role="button" aria-pressed="false">
+              <div class="material-badge">Most Popular</div>
+              <div class="material-icon-wrap">💧</div>
+              <h3>Polyester Dry-Fit</h3>
+              <p>High-performance moisture-wicking fabric ideal for intense outdoor sports. Keeps you cool and dry all game long.</p>
+              <div class="material-tags">
+                <span>Moisture Wicking</span>
+                <span>100–150 GSM</span>
+                <span>Quick Dry</span>
+              </div>
+              <div class="material-sel">Selected ✓</div>
             </div>
-            <div class="material-sel">Selected ✓</div>
+            <div class="material-card reveal-right reveal-d1" data-material="Microfiber Mesh" tabindex="0" role="button" aria-pressed="false">
+              <div class="material-icon-wrap">🌬️</div>
+              <h3>Microfiber Mesh</h3>
+              <p>Ultra-breathable open-weave fabric with maximum airflow. Perfect for India's tropical heat and high-humidity conditions.</p>
+              <div class="material-tags">
+                <span>Max Breathability</span>
+                <span>Anti-Odour</span>
+                <span>Soft Feel</span>
+              </div>
+              <div class="material-sel">Selected ✓</div>
+            </div>
+            <div class="material-card reveal-left reveal-d2" data-material="Spandex Blend" tabindex="0" role="button" aria-pressed="false">
+              <div class="material-icon-wrap">🤸</div>
+              <h3>Spandex Blend</h3>
+              <p>4-way stretch material that moves with your body for unrestricted performance. Ideal for dynamic and contact sports.</p>
+              <div class="material-tags">
+                <span>4-Way Stretch</span>
+                <span>Compression</span>
+                <span>Shape Retention</span>
+              </div>
+              <div class="material-sel">Selected ✓</div>
+            </div>
+            <div class="material-card reveal-right reveal-d3" data-material="Cotton Blend" tabindex="0" role="button" aria-pressed="false">
+              <div class="material-icon-wrap">🌿</div>
+              <h3>Cotton Blend</h3>
+              <p>Classic comfort fabric blended for durability. Great for training sessions, casual events and team photoshoots.</p>
+              <div class="material-tags">
+                <span>Natural Comfort</span>
+                <span>Skin-Friendly</span>
+                <span>Easy Care</span>
+              </div>
+              <div class="material-sel">Selected ✓</div>
+            </div>
           </div>
-          <div class="material-card reveal-right reveal-d1" data-material="Microfiber Mesh" tabindex="0" role="button" aria-pressed="false">
-            <div class="material-icon-wrap">🌬️</div>
-            <h3>Microfiber Mesh</h3>
-            <p>Ultra-breathable open-weave fabric with maximum airflow. Perfect for India's tropical heat and high-humidity conditions.</p>
-            <div class="material-tags">
-              <span>Max Breathability</span>
-              <span>Anti-Odour</span>
-              <span>Soft Feel</span>
+
+          <!-- Right side: Fabric Micro-Texture Zoom Panel -->
+          <div class="material-preview-panel reveal-scale">
+            <div class="texture-zoom-title">FABRIC SCANNER</div>
+            <div class="zoom-circle-wrapper">
+              <div class="zoom-circle">
+                <svg class="texture-svg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <!-- Pattern 1: Pinholes (Dry-Fit) -->
+                    <pattern id="zoom-pat-dryfit" width="16" height="16" patternTransform="scale(1.5)" patternUnits="userSpaceOnUse">
+                      <rect width="16" height="16" fill="#111111"/>
+                      <circle cx="4" cy="4" r="1.5" fill="#FCE22A" opacity="0.8"/>
+                      <circle cx="12" cy="12" r="1.5" fill="#FCE22A" opacity="0.8"/>
+                      <circle cx="12" cy="4" r="0.8" fill="#FCE22A" opacity="0.4"/>
+                      <circle cx="4" cy="12" r="0.8" fill="#FCE22A" opacity="0.4"/>
+                    </pattern>
+
+                    <!-- Pattern 2: Hex Mesh (Microfiber Mesh) -->
+                    <pattern id="zoom-pat-mesh" width="24" height="24" patternTransform="scale(1.5)" patternUnits="userSpaceOnUse">
+                      <rect width="24" height="24" fill="#111111"/>
+                      <path d="M12 0 L24 6 L24 18 L12 24 L0 18 L0 6 Z" fill="none" stroke="#FCE22A" stroke-width="1.5" opacity="0.7"/>
+                      <circle cx="12" cy="12" r="2" fill="#FCE22A" opacity="0.9"/>
+                    </pattern>
+
+                    <!-- Pattern 3: Diagonal ribbed elastane (Spandex) -->
+                    <pattern id="zoom-pat-spandex" width="20" height="20" patternTransform="scale(1.5)" patternUnits="userSpaceOnUse">
+                      <rect width="20" height="20" fill="#111111"/>
+                      <path d="M 0 0 L 20 20 M 10 -10 L 30 10 M -10 10 L 10 30" stroke="#FCE22A" stroke-width="3.5" stroke-linecap="round" opacity="0.85"/>
+                      <path d="M 0 20 L 20 0 M 10 30 L 30 10 M -10 10 L 10 -10" stroke="#FCE22A" stroke-width="1" opacity="0.3"/>
+                    </pattern>
+
+                    <!-- Pattern 4: Organic cotton weave -->
+                    <pattern id="zoom-pat-cotton" width="16" height="16" patternTransform="scale(1.5)" patternUnits="userSpaceOnUse">
+                      <rect width="16" height="16" fill="#111111"/>
+                      <path d="M 0 4 L 16 4 M 0 12 L 16 12" stroke="#FCE22A" stroke-width="2" opacity="0.5"/>
+                      <path d="M 4 0 L 4 16 M 12 0 L 12 16" stroke="#FCE22A" stroke-width="2" opacity="0.5"/>
+                      <circle cx="8" cy="8" r="1.2" fill="#FCE22A" opacity="0.7"/>
+                    </pattern>
+                  </defs>
+                  <rect width="200" height="200" fill="url(#zoom-pat-dryfit)" id="zoom-rect" />
+                </svg>
+                <div class="scanner-crosshair"></div>
+              </div>
             </div>
-            <div class="material-sel">Selected ✓</div>
-          </div>
-          <div class="material-card reveal-left reveal-d2" data-material="Spandex Blend" tabindex="0" role="button" aria-pressed="false">
-            <div class="material-icon-wrap">🤸</div>
-            <h3>Spandex Blend</h3>
-            <p>4-way stretch material that moves with your body for unrestricted performance. Ideal for dynamic and contact sports.</p>
-            <div class="material-tags">
-              <span>4-Way Stretch</span>
-              <span>Compression</span>
-              <span>Shape Retention</span>
+            <div class="texture-zoom-label" id="texture-label-display">Polyester Dry-Fit Weave</div>
+            <div class="zoom-slider-wrap">
+              <span>Zoom Scale</span>
+              <input type="range" id="texture-zoom" min="0.6" max="3.5" step="0.1" value="1.5" aria-label="Texture Zoom">
             </div>
-            <div class="material-sel">Selected ✓</div>
-          </div>
-          <div class="material-card reveal-right reveal-d3" data-material="Cotton Blend" tabindex="0" role="button" aria-pressed="false">
-            <div class="material-icon-wrap">🌿</div>
-            <h3>Cotton Blend</h3>
-            <p>Classic comfort fabric blended for durability. Great for training sessions, casual events and team photoshoots.</p>
-            <div class="material-tags">
-              <span>Natural Comfort</span>
-              <span>Skin-Friendly</span>
-              <span>Easy Care</span>
-            </div>
-            <div class="material-sel">Selected ✓</div>
           </div>
         </div>
       </div>
@@ -414,75 +593,165 @@
           <p class="section-desc dark">Fill in your details below and we'll get back to you with a custom quote.</p>
         </div>
 
-        <form id="order-form" class="order-form reveal-scale" novalidate>
-          <!-- Selections display -->
-          <div class="form-selections">
-            <div class="selection-display" id="disp-sport">
-              <div class="sel-label">Sport</div>
-              <div class="sel-val" id="sport-val-text">Not selected yet</div>
+        <div class="order-flex-layout">
+          <!-- Main Form (Left Column) -->
+          <form id="order-form" class="order-form reveal-scale" novalidate>
+            <!-- Selections display -->
+            <div class="form-selections">
+              <div class="selection-display" id="disp-sport">
+                <div class="sel-label">Sport</div>
+                <div class="sel-val" id="sport-val-text">Not selected yet</div>
+              </div>
+              <div class="selection-display" id="disp-material">
+                <div class="sel-label">Material</div>
+                <div class="sel-val" id="material-val-text">Not selected yet</div>
+              </div>
             </div>
-            <div class="selection-display" id="disp-material">
-              <div class="sel-label">Material</div>
-              <div class="sel-val" id="material-val-text">Not selected yet</div>
-            </div>
-          </div>
 
-          <!-- Hidden inputs -->
-          <input type="hidden" id="selected-sport">
-          <input type="hidden" id="selected-material">
+            <!-- Hidden inputs -->
+            <input type="hidden" id="selected-sport">
+            <input type="hidden" id="selected-material">
 
-          <!-- Team Name & Contact -->
-          <div class="form-row-2">
-            <div class="form-field">
-              <label for="team-name">Team Name <span class="req">*</span></label>
-              <input type="text" id="team-name" class="form-input" placeholder="e.g. Thunder Warriors FC" required>
+            <!-- Team Name & Contact -->
+            <div class="form-row-2">
+              <div class="form-field">
+                <label for="team-name">Team Name <span class="req">*</span></label>
+                <input type="text" id="team-name" class="form-input" placeholder="e.g. Thunder Warriors FC" required>
+              </div>
+              <div class="form-field">
+                <label for="contact-name">Your Name <span class="req">*</span></label>
+                <input type="text" id="contact-name" class="form-input" placeholder="e.g. Rahul Sharma" required>
+              </div>
             </div>
-            <div class="form-field">
-              <label for="contact-name">Your Name <span class="req">*</span></label>
-              <input type="text" id="contact-name" class="form-input" placeholder="e.g. Rahul Sharma" required>
-            </div>
-          </div>
 
-          <div class="form-row-2">
-            <div class="form-field">
-              <label for="phone">Phone Number <span class="req">*</span></label>
-              <input type="tel" id="phone" class="form-input" placeholder="+91 98765 43210" required>
+            <div class="form-row-2">
+              <div class="form-field">
+                <label for="phone">Phone Number <span class="req">*</span></label>
+                <input type="tel" id="phone" class="form-input" placeholder="+91 98765 43210" required>
+              </div>
+              <div class="form-field">
+                <label for="email">Email (optional)</label>
+                <input type="email" id="email" class="form-input" placeholder="you@example.com">
+              </div>
             </div>
-            <div class="form-field">
-              <label for="email">Email (optional)</label>
-              <input type="email" id="email" class="form-input" placeholder="you@example.com">
-            </div>
-          </div>
 
-          <!-- Team Roster -->
-          <div class="roster-box">
-            <div class="roster-top">
-              <h3>Team Roster</h3>
-              <span class="roster-badge" id="roster-count">1 player</span>
+            <!-- Team Roster -->
+            <div class="roster-box">
+              <div class="roster-top">
+                <h3>Team Roster</h3>
+                <span class="roster-badge" id="roster-count">1 player</span>
+              </div>
+              <div class="roster-head-row">
+                <span>#</span>
+                <span>Player Name</span>
+                <span>Jersey No.</span>
+                <span>Size</span>
+                <span></span>
+              </div>
+              <div id="roster-container"></div>
+              <button type="button" id="add-player" class="add-row-btn">
+                + Add Teammate
+              </button>
             </div>
-            <div class="roster-head-row">
-              <span>#</span>
-              <span>Player Name</span>
-              <span>Jersey No.</span>
-              <span>Size</span>
-              <span></span>
+
+            <!-- Notes -->
+            <div class="form-field">
+              <label for="notes">Special Instructions (optional)</label>
+              <textarea id="notes" class="form-input form-textarea" placeholder="Logo placement, colour preferences, printing details, delivery notes..."></textarea>
             </div>
-            <div id="roster-container"></div>
-            <button type="button" id="add-player" class="add-row-btn">
-              + Add Teammate
+
+            <button type="submit" class="btn btn-submit-main" id="submit-btn">
+              Submit Enquiry &nbsp;→
             </button>
-          </div>
+          </form>
 
-          <!-- Notes -->
-          <div class="form-field">
-            <label for="notes">Special Instructions (optional)</label>
-            <textarea id="notes" class="form-input form-textarea" placeholder="Logo placement, colour preferences, printing details, delivery notes..."></textarea>
-          </div>
+          <!-- Spec Sheet Summary (Right Column) -->
+          <div class="roster-summary-card reveal-scale">
+            <div class="summary-card-inner">
+              <div class="receipt-header">
+                <div class="receipt-brand">DEZIRE SPORTS</div>
+                <div class="receipt-title">ORDER SPECIFICATION SHEET</div>
+                <div class="receipt-divider"></div>
+              </div>
 
-          <button type="submit" class="btn btn-submit-main" id="submit-btn">
-            Submit Enquiry &nbsp;→
-          </button>
-        </form>
+              <div class="receipt-details">
+                <div class="receipt-row">
+                  <span>SPORT</span>
+                  <span id="summary-sport" class="receipt-val">—</span>
+                </div>
+                <div class="receipt-row">
+                  <span>MATERIAL</span>
+                  <span id="summary-material" class="receipt-val">—</span>
+                </div>
+                <div class="receipt-row">
+                  <span>BASE COLOR</span>
+                  <span class="color-preview-tag">
+                    <span class="color-preview-circle" id="summary-color-primary" style="background:#FCE22A;"></span>
+                    <span id="summary-color-primary-name" class="receipt-val">Lemon Yellow</span>
+                  </span>
+                </div>
+                <div class="receipt-row">
+                  <span>ACCENT COLOR</span>
+                  <span class="color-preview-tag">
+                    <span class="color-preview-circle" id="summary-color-accent" style="background:#0D0D0D;"></span>
+                    <span id="summary-color-accent-name" class="receipt-val">Carbon Black</span>
+                  </span>
+                </div>
+                <div class="receipt-row">
+                  <span>PATTERN</span>
+                  <span id="summary-pattern" class="receipt-val">Solid</span>
+                </div>
+                <div class="receipt-row">
+                  <span>COLLAR</span>
+                  <span id="summary-collar" class="receipt-val">Crew Neck</span>
+                </div>
+                
+                <div class="receipt-divider"></div>
+                
+                <div class="receipt-row total-row">
+                  <span>ROSTER COUNT</span>
+                  <span id="summary-count" class="receipt-val">1 Player</span>
+                </div>
+
+                <div class="size-distribution-wrapper">
+                  <div class="size-dist-title">SIZE DISTRIBUTION</div>
+                  <div class="size-badge-grid" id="summary-sizes">
+                    <div class="size-badge">XS: 0</div>
+                    <div class="size-badge">S: 0</div>
+                    <div class="size-badge">M: 0</div>
+                    <div class="size-badge">L: 0</div>
+                    <div class="size-badge">XL: 0</div>
+                    <div class="size-badge">XXL+: 0</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="receipt-footer">
+                <div class="barcode-container">
+                  <div class="barcode-bar" style="width: 1px;"></div>
+                  <div class="barcode-bar" style="width: 3px;"></div>
+                  <div class="barcode-bar" style="width: 1px;"></div>
+                  <div class="barcode-bar" style="width: 2px;"></div>
+                  <div class="barcode-bar" style="width: 4px;"></div>
+                  <div class="barcode-bar" style="width: 1px;"></div>
+                  <div class="barcode-bar" style="width: 3px;"></div>
+                  <div class="barcode-bar" style="width: 2px;"></div>
+                  <div class="barcode-bar" style="width: 1px;"></div>
+                  <div class="barcode-bar" style="width: 4px;"></div>
+                  <div class="barcode-bar" style="width: 1px;"></div>
+                  <div class="barcode-bar" style="width: 2px;"></div>
+                  <div class="barcode-bar" style="width: 3px;"></div>
+                  <div class="barcode-bar" style="width: 1px;"></div>
+                  <div class="barcode-bar" style="width: 2px;"></div>
+                  <div class="barcode-bar" style="width: 4px;"></div>
+                  <div class="barcode-bar" style="width: 1px;"></div>
+                  <div class="barcode-bar" style="width: 3px;"></div>
+                </div>
+                <div class="receipt-serial">DSW-2026-ENQ-LIVE</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 

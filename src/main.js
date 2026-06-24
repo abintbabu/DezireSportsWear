@@ -16,8 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* =============================================
      SCROLL REVEAL — Unified Observer
-     covers .reveal, .reveal-left, .reveal-right,
-             .reveal-scale, .reveal-flip
      ============================================= */
   const allReveal = document.querySelectorAll(
     '.reveal, .reveal-left, .reveal-right, .reveal-scale, .reveal-flip'
@@ -35,17 +33,15 @@ document.addEventListener('DOMContentLoaded', () => {
   allReveal.forEach(el => revealObserver.observe(el));
 
   /* =============================================
-     PARALLAX — Hero blobs & jersey follow scroll
+     PARALLAX
      ============================================= */
   const blob1 = document.querySelector('.blob-1');
   const blob2 = document.querySelector('.blob-2');
-  const jerseyCard = document.querySelector('.jersey-card');
 
   function updateParallax() {
     const sy = window.scrollY;
     if (blob1) blob1.style.transform = `translateY(${sy * 0.25}px)`;
     if (blob2) blob2.style.transform = `translateY(${sy * -0.15}px)`;
-    if (jerseyCard) jerseyCard.style.transform = `translateY(${sy * 0.08}px)`;
   }
   window.addEventListener('scroll', updateParallax, { passive: true });
 
@@ -54,7 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
      ============================================= */
   function animateCounter(el) {
     const text = el.innerHTML;
-    // Extract the <span> suffix HTML if present
     const spanMatch = text.match(/<span>(.*?)<\/span>/);
     const suffix = spanMatch ? spanMatch[1] : '';
     const rawNum = text.replace(/<span>.*?<\/span>/g, '').trim();
@@ -98,11 +93,247 @@ document.addEventListener('DOMContentLoaded', () => {
   const menuBtn = document.getElementById('mobile-menu-btn');
   const mobileNav = document.getElementById('mobile-nav');
 
-  menuBtn.addEventListener('click', () => {
-    mobileNav.classList.toggle('open');
-  });
-  document.querySelectorAll('.mobile-link').forEach(link => {
-    link.addEventListener('click', () => mobileNav.classList.remove('open'));
+  if (menuBtn && mobileNav) {
+    menuBtn.addEventListener('click', () => {
+      mobileNav.classList.toggle('open');
+    });
+    document.querySelectorAll('.mobile-link').forEach(link => {
+      link.addEventListener('click', () => mobileNav.classList.remove('open'));
+    });
+  }
+
+  /* =============================================
+     INTERACTIVE KIT LAB (JERSEY CUSTOMIZER)
+     ============================================= */
+  const svgJersey = document.getElementById('custom-jersey-svg');
+  const inputCustomName = document.getElementById('custom-name');
+  const inputCustomNum = document.getElementById('custom-num');
+  
+  const jerseyTextName = document.getElementById('jersey-name');
+  const jerseyTextNum = document.getElementById('jersey-number');
+  
+  const selectCollar = document.getElementById('custom-collar');
+  const selectPattern = document.getElementById('custom-pattern');
+  const rectPattern = document.getElementById('jersey-pattern');
+  
+  const collarCrewPath = document.getElementById('collar-crew');
+  const collarVPath = document.getElementById('collar-v');
+
+  // Text inputs synchronization
+  if (inputCustomName && jerseyTextName) {
+    inputCustomName.addEventListener('input', (e) => {
+      const val = e.target.value.toUpperCase();
+      jerseyTextName.textContent = val || 'DEZIRE';
+    });
+  }
+
+  if (inputCustomNum && jerseyTextNum) {
+    inputCustomNum.addEventListener('input', (e) => {
+      const val = e.target.value;
+      jerseyTextNum.textContent = val || '10';
+    });
+  }
+
+  // Color Selectors
+  const primarySwatches = document.getElementById('primary-swatches');
+  const accentSwatches = document.getElementById('accent-swatches');
+
+  let activePrimary = '#FCE22A';
+  let activeAccent = '#0D0D0D';
+
+  function setupSwatches(container, isPrimary) {
+    if (!container) return;
+    const btns = container.querySelectorAll('.swatch-btn');
+    btns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        btns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const colorVal = btn.dataset.color;
+        
+        if (isPrimary) {
+          activePrimary = colorVal;
+          svgJersey.style.setProperty('--primary-color', activePrimary);
+          
+          // Update spec sheet
+          const summaryPrimary = document.getElementById('summary-color-primary');
+          const summaryPrimaryName = document.getElementById('summary-color-primary-name');
+          if (summaryPrimary) summaryPrimary.style.background = activePrimary;
+          if (summaryPrimaryName) summaryPrimaryName.textContent = btn.title;
+        } else {
+          activeAccent = colorVal;
+          svgJersey.style.setProperty('--accent-color', activeAccent);
+          svgJersey.style.setProperty('--text-color', activeAccent);
+
+          // Update spec sheet
+          const summaryAccent = document.getElementById('summary-color-accent');
+          const summaryAccentName = document.getElementById('summary-color-accent-name');
+          if (summaryAccent) summaryAccent.style.background = activeAccent;
+          if (summaryAccentName) summaryAccentName.textContent = btn.title;
+        }
+      });
+    });
+  }
+
+  setupSwatches(primarySwatches, true);
+  setupSwatches(accentSwatches, false);
+
+  // Collar toggles
+  if (selectCollar) {
+    selectCollar.addEventListener('change', (e) => {
+      const val = e.target.value;
+      if (val === 'vneck') {
+        collarCrewPath.style.display = 'none';
+        collarVPath.style.display = 'block';
+        document.getElementById('summary-collar').textContent = 'V-Neck';
+      } else {
+        collarCrewPath.style.display = 'block';
+        collarVPath.style.display = 'none';
+        document.getElementById('summary-collar').textContent = 'Crew Neck';
+      }
+    });
+  }
+
+  // Pattern changes
+  if (selectPattern && rectPattern) {
+    selectPattern.addEventListener('change', (e) => {
+      const val = e.target.value;
+      if (val === 'none') {
+        rectPattern.setAttribute('fill', 'none');
+        document.getElementById('summary-pattern').textContent = 'Solid';
+      } else {
+        rectPattern.setAttribute('fill', `url(#pat-${val})`);
+        document.getElementById('summary-pattern').textContent = selectPattern.options[selectPattern.selectedIndex].text;
+      }
+    });
+  }
+
+  // Inject customizable details to first Roster Row
+  const applyBtn = document.getElementById('apply-to-roster-btn');
+  if (applyBtn) {
+    applyBtn.addEventListener('click', () => {
+      const nameVal = inputCustomName.value.trim();
+      const numVal = inputCustomNum.value.trim();
+      
+      const rosterRows = rosterContainer.querySelectorAll('.roster-row');
+      if (rosterRows.length > 0) {
+        const firstRow = rosterRows[0];
+        const nameInput = firstRow.querySelector('input[placeholder="Player name"]');
+        const numInput = firstRow.querySelector('input[placeholder="No."]');
+        
+        if (nameInput) nameInput.value = nameVal;
+        if (numInput) numInput.value = numVal;
+        
+        showToast('✅ Custom kit details loaded into Roster row 1!');
+        scrollToId('order');
+        updateRosterSummary();
+      }
+    });
+  }
+
+  /* =============================================
+     WORLD CUP PRESETS SELECTOR
+     ============================================= */
+  const wcCards = document.querySelectorAll('.wc-card');
+  const presets = {
+    'Argentina': {
+      primary: '#FFFFFF',
+      accent: '#6EC6F5',
+      text: '#003087',
+      pattern: 'stripes',
+      name: 'MESSI',
+      num: '10',
+      collar: 'crew'
+    },
+    'Brazil': {
+      primary: '#F7D02C',
+      accent: '#009C3B',
+      text: '#003399',
+      pattern: 'none',
+      name: 'VINÍCIUS',
+      num: '10',
+      collar: 'vneck'
+    },
+    'Portugal': {
+      primary: '#D01515',
+      accent: '#006400',
+      text: '#FFFFFF',
+      pattern: 'none',
+      name: 'RONALDO',
+      num: '7',
+      collar: 'crew'
+    },
+    'India Cricket': {
+      primary: '#003DA5',
+      accent: '#FFB300',
+      text: '#FFB300',
+      pattern: 'mesh',
+      name: 'KOHLI',
+      num: '18',
+      collar: 'crew'
+    }
+  };
+
+  wcCards.forEach(card => {
+    card.addEventListener('click', () => {
+      const country = card.dataset.country;
+      const config = presets[country];
+      if (!config) return;
+
+      // Apply primary color
+      activePrimary = config.primary;
+      svgJersey.style.setProperty('--primary-color', config.primary);
+      const primBtn = Array.from(primarySwatches.querySelectorAll('.swatch-btn')).find(b => b.dataset.color.toLowerCase() === config.primary.toLowerCase());
+      primarySwatches.querySelectorAll('.swatch-btn').forEach(b => b.classList.remove('active'));
+      if (primBtn) primBtn.classList.add('active');
+      document.getElementById('summary-color-primary').style.background = config.primary;
+      document.getElementById('summary-color-primary-name').textContent = primBtn ? primBtn.title : 'Custom';
+
+      // Apply accent color
+      activeAccent = config.accent;
+      svgJersey.style.setProperty('--accent-color', config.accent);
+      svgJersey.style.setProperty('--text-color', config.text);
+      const accBtn = Array.from(accentSwatches.querySelectorAll('.swatch-btn')).find(b => b.dataset.color.toLowerCase() === config.accent.toLowerCase());
+      accentSwatches.querySelectorAll('.swatch-btn').forEach(b => b.classList.remove('active'));
+      if (accBtn) accBtn.classList.add('active');
+      document.getElementById('summary-color-accent').style.background = config.accent;
+      document.getElementById('summary-color-accent-name').textContent = accBtn ? accBtn.title : 'Custom';
+
+      // Apply name & number
+      inputCustomName.value = config.name;
+      jerseyTextName.textContent = config.name;
+      inputCustomNum.value = config.num;
+      jerseyTextNum.textContent = config.num;
+
+      // Apply pattern
+      selectPattern.value = config.pattern;
+      if (config.pattern === 'none') {
+        rectPattern.setAttribute('fill', 'none');
+        document.getElementById('summary-pattern').textContent = 'Solid';
+      } else {
+        rectPattern.setAttribute('fill', `url(#pat-${config.pattern})`);
+        document.getElementById('summary-pattern').textContent = selectPattern.options[selectPattern.selectedIndex].text;
+      }
+
+      // Apply collar
+      selectCollar.value = config.collar;
+      if (config.collar === 'vneck') {
+        collarCrewPath.style.display = 'none';
+        collarVPath.style.display = 'block';
+        document.getElementById('summary-collar').textContent = 'V-Neck';
+      } else {
+        collarCrewPath.style.display = 'block';
+        collarVPath.style.display = 'none';
+        document.getElementById('summary-collar').textContent = 'Crew Neck';
+      }
+
+      // Live updates to the main Form Sport Selection
+      const sportsCard = Array.from(document.querySelectorAll('.sport-card')).find(c => c.dataset.sport === (country === 'India Cricket' ? 'Cricket' : 'Football'));
+      if (sportsCard) selectSport(sportsCard);
+
+      // Toast notification & smooth scroll
+      showToast(`🏆 Loaded ${country} preset template!`);
+      scrollToId('home');
+    });
   });
 
   /* =============================================
@@ -128,6 +359,32 @@ document.addEventListener('DOMContentLoaded', () => {
     sportInput.value = sport;
     sportValText.textContent = `⚡ ${sport}`;
     dispSport.classList.add('active');
+    
+    // Update spec sheet
+    const summarySport = document.getElementById('summary-sport');
+    if (summarySport) summarySport.textContent = sport;
+
+    // Toggle sleeves for basketball
+    if (sport === 'Basketball') {
+      const sleeveL = document.getElementById('jersey-sleeve-l');
+      const sleeveLAcc = document.getElementById('jersey-sleeve-l-accent');
+      const sleeveR = document.getElementById('jersey-sleeve-r');
+      const sleeveRAcc = document.getElementById('jersey-sleeve-r-accent');
+      if (sleeveL) sleeveL.style.display = 'none';
+      if (sleeveLAcc) sleeveLAcc.style.display = 'none';
+      if (sleeveR) sleeveR.style.display = 'none';
+      if (sleeveRAcc) sleeveRAcc.style.display = 'none';
+    } else {
+      const sleeveL = document.getElementById('jersey-sleeve-l');
+      const sleeveLAcc = document.getElementById('jersey-sleeve-l-accent');
+      const sleeveR = document.getElementById('jersey-sleeve-r');
+      const sleeveRAcc = document.getElementById('jersey-sleeve-r-accent');
+      if (sleeveL) sleeveL.style.display = 'block';
+      if (sleeveLAcc) sleeveLAcc.style.display = 'block';
+      if (sleeveR) sleeveR.style.display = 'block';
+      if (sleeveRAcc) sleeveRAcc.style.display = 'block';
+    }
+
     showToast(`Sport: ${sport} selected`);
     setTimeout(() => {
       const mat = document.getElementById('materials');
@@ -138,12 +395,23 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   /* =============================================
-     MATERIAL SELECTION
+     MATERIAL SELECTION & FABRIC SCANNER ZOOM
      ============================================= */
   const materialCards = document.querySelectorAll('.material-card');
   const materialInput = document.getElementById('selected-material');
   const materialValText = document.getElementById('material-val-text');
   const dispMaterial = document.getElementById('disp-material');
+  
+  const zoomRect = document.getElementById('zoom-rect');
+  const zoomLabel = document.getElementById('texture-label-display');
+  const zoomSlider = document.getElementById('texture-zoom');
+
+  const patternMapping = {
+    'Polyester Dry-Fit': { pattern: 'url(#zoom-pat-dryfit)', text: 'Polyester Dry-Fit Weave' },
+    'Microfiber Mesh': { pattern: 'url(#zoom-pat-mesh)', text: 'Microfiber Honeycomb Mesh' },
+    'Spandex Blend': { pattern: 'url(#zoom-pat-spandex)', text: 'Spandex 4-Way Ribbed Blend' },
+    'Cotton Blend': { pattern: 'url(#zoom-pat-cotton)', text: 'Soft Organic Cotton Weave' }
+  };
 
   materialCards.forEach(card => {
     card.addEventListener('click', () => selectMaterial(card));
@@ -160,6 +428,18 @@ document.addEventListener('DOMContentLoaded', () => {
     materialInput.value = material;
     materialValText.textContent = `🧵 ${material}`;
     dispMaterial.classList.add('active');
+
+    // Update fabric scanner
+    const match = patternMapping[material];
+    if (match && zoomRect && zoomLabel) {
+      zoomRect.setAttribute('fill', match.pattern);
+      zoomLabel.textContent = match.text;
+    }
+    
+    // Update spec sheet
+    const summaryMaterial = document.getElementById('summary-material');
+    if (summaryMaterial) summaryMaterial.textContent = material;
+
     showToast(`Material: ${material} selected`);
     setTimeout(() => {
       const order = document.getElementById('order');
@@ -169,8 +449,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 400);
   }
 
+  // Handle Zoom Scale slider
+  if (zoomSlider && svgJersey) {
+    zoomSlider.addEventListener('input', (e) => {
+      const scale = e.target.value;
+      const patterns = ['zoom-pat-dryfit', 'zoom-pat-mesh', 'zoom-pat-spandex', 'zoom-pat-cotton'];
+      patterns.forEach(patId => {
+        const pat = document.getElementById(patId);
+        if (pat) pat.setAttribute('patternTransform', `scale(${scale})`);
+      });
+    });
+  }
+
   /* =============================================
-     DYNAMIC ROSTER
+     DYNAMIC ROSTER & INVOICE SPEC SHEET SPECIFICS
      ============================================= */
   const rosterContainer = document.getElementById('roster-container');
   const addPlayerBtn = document.getElementById('add-player');
@@ -187,6 +479,38 @@ document.addEventListener('DOMContentLoaded', () => {
       const numEl = row.querySelector('.row-num');
       if (numEl) numEl.textContent = i + 1;
     });
+  }
+
+  // Live Spec Sheet Invoice Calculator
+  function updateRosterSummary() {
+    const rows = rosterContainer.querySelectorAll('.roster-row');
+    const totalCount = rows.length;
+    document.getElementById('summary-count').textContent = `${totalCount} Player${totalCount !== 1 ? 's' : ''}`;
+
+    const sizes = { XS: 0, S: 0, M: 0, L: 0, XL: 0, 'XXL+': 0 };
+    rows.forEach(row => {
+      const select = row.querySelector('select');
+      if (select && select.value) {
+        const val = select.value;
+        if (['XXL', 'XXXL'].includes(val)) {
+          sizes['XXL+']++;
+        } else if (sizes.hasOwnProperty(val)) {
+          sizes[val]++;
+        }
+      }
+    });
+
+    const sizeGrid = document.getElementById('summary-sizes');
+    if (sizeGrid) {
+      sizeGrid.innerHTML = `
+        <div class="size-badge">XS: ${sizes.XS}</div>
+        <div class="size-badge">S: ${sizes.S}</div>
+        <div class="size-badge">M: ${sizes.M}</div>
+        <div class="size-badge">L: ${sizes.L}</div>
+        <div class="size-badge">XL: ${sizes.XL}</div>
+        <div class="size-badge">XXL+: ${sizes['XXL+']}</div>
+      `;
+    }
   }
 
   function addPlayerRow() {
@@ -209,12 +533,26 @@ document.addEventListener('DOMContentLoaded', () => {
       row.style.transition = 'opacity 0.2s, transform 0.2s';
       row.style.opacity = '0';
       row.style.transform = 'translateX(-10px)';
-      setTimeout(() => { row.remove(); updateCount(); refreshNumbers(); }, 200);
+      setTimeout(() => { 
+        row.remove(); 
+        updateCount(); 
+        refreshNumbers(); 
+        updateRosterSummary();
+      }, 200);
+    });
+
+    row.querySelectorAll('input, select').forEach(input => {
+      input.addEventListener('input', updateRosterSummary);
+      input.addEventListener('change', updateRosterSummary);
     });
 
     rosterContainer.appendChild(row);
     updateCount();
-    setTimeout(() => row.querySelector('input').focus(), 60);
+    updateRosterSummary();
+    setTimeout(() => {
+      const inp = row.querySelector('input');
+      if (inp) inp.focus();
+    }, 60);
   }
 
   addPlayerRow();
@@ -265,6 +603,12 @@ document.addEventListener('DOMContentLoaded', () => {
       rosterContainer.innerHTML = '';
       playerIndex = 0;
       addPlayerRow();
+      
+      // Reset spec sheet
+      document.getElementById('summary-sport').textContent = '—';
+      document.getElementById('summary-material').textContent = '—';
+      updateRosterSummary();
+      
       submitBtn.textContent = 'Submit Enquiry  →';
       submitBtn.disabled = false;
     }, 1200);
@@ -280,6 +624,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let toastTimer;
   function showToast(msg) {
     const toast = document.getElementById('toast');
+    if (!toast) return;
     toast.textContent = msg;
     toast.classList.add('show');
     clearTimeout(toastTimer);
