@@ -317,12 +317,21 @@
                 <input type="text" id="modal-branding-name" class="form-input" placeholder="Sponsor / Club name">
               </div>
               <div class="mf-row">
-                <label>Branding Logo</label>
-                <label class="logo-upload-label">
-                  <input type="file" id="modal-logo-file" accept="image/*" class="logo-file-input">
-                  <span id="modal-logo-label-text">Upload logo…</span>
-                </label>
+                <label>Sleeve Type</label>
+                <select id="modal-sleeve" class="form-input">
+                  <option value="Half Sleeve">Half Sleeve</option>
+                  <option value="Full Sleeve">Full Sleeve</option>
+                </select>
               </div>
+            </div>
+
+            <div class="mf-row">
+              <label>Branding Logo</label>
+              <label class="logo-upload-label">
+                <input type="file" id="modal-logo-file" accept="image/*" class="logo-file-input">
+                <span id="modal-logo-label-text">Upload logo…</span>
+              </label>
+              <p class="logo-upload-hint">Note: WhatsApp/email can't auto-attach files. After sending your order, please attach this logo image directly in the chat.</p>
             </div>
 
             <!-- Roster -->

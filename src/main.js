@@ -649,6 +649,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('modal-team-name').value = '';
     document.getElementById('modal-branding-name').value = '';
     document.getElementById('modal-notes').value = '';
+    document.getElementById('modal-sleeve').value = 'Half Sleeve';
     modalLogoLabelText.textContent = 'Upload logo…';
     modalLogoFile.value = '';
     modalRosterContainer.innerHTML = '';
@@ -706,7 +707,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   modalAddPlayer.addEventListener('click', addModalPlayerRow);
 
-  function buildOrderMessage(designId, teamName, brandName, notes, roster) {
+  function buildOrderMessage(designId, teamName, brandName, sleeve, notes, roster, hasLogo) {
     const rosterLines = roster.map((p, i) =>
       `  ${i + 1}. ${p.name || '—'} | #${p.num || '—'} | ${p.size || '—'}`
     ).join('\n');
@@ -716,12 +717,15 @@ document.addEventListener('DOMContentLoaded', () => {
       `Design:  #${designId}`,
       `Team:    ${teamName || '—'}`,
       brandName ? `Branding: ${brandName}` : null,
+      sleeve ? `Sleeve:  ${sleeve}` : null,
       ``,
       `*Roster (${roster.length} player${roster.length !== 1 ? 's' : ''}):*`,
       rosterLines,
       notes ? `\nNotes: ${notes}` : null,
       ``,
-      `_(Logo will be shared as image in this thread)_`,
+      hasLogo
+        ? `📎 *PLEASE ATTACH YOUR LOGO IMAGE IN THIS CHAT.*`
+        : null,
     ].filter(l => l !== null).join('\n');
   }
 
@@ -737,26 +741,30 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('modal-submit-wa').addEventListener('click', () => {
     const teamName  = document.getElementById('modal-team-name').value.trim();
     const brandName = document.getElementById('modal-branding-name').value.trim();
+    const sleeve    = document.getElementById('modal-sleeve').value;
     const notes     = document.getElementById('modal-notes').value.trim();
+    const hasLogo   = !!modalLogoFile.files.length;
     if (!teamName) { document.getElementById('modal-team-name').focus(); showToast('⚠️ Enter your team name!'); return; }
     const roster = collectModalRoster();
-    const msg = buildOrderMessage(activeDesignId, teamName, brandName, notes, roster);
+    const msg = buildOrderMessage(activeDesignId, teamName, brandName, sleeve, notes, roster, hasLogo);
     window.open(`https://wa.me/919809080973?text=${encodeURIComponent(msg)}`, '_blank');
     closeDesignModal();
-    showToast('✅ Opening WhatsApp with your order!');
+    showToast(hasLogo ? '✅ Order opened — now attach your logo in WhatsApp!' : '✅ Opening WhatsApp with your order!');
   });
 
   document.getElementById('modal-submit-email').addEventListener('click', () => {
     const teamName  = document.getElementById('modal-team-name').value.trim();
     const brandName = document.getElementById('modal-branding-name').value.trim();
+    const sleeve    = document.getElementById('modal-sleeve').value;
     const notes     = document.getElementById('modal-notes').value.trim();
+    const hasLogo   = !!modalLogoFile.files.length;
     if (!teamName) { document.getElementById('modal-team-name').focus(); showToast('⚠️ Enter your team name!'); return; }
     const roster = collectModalRoster();
     const subject = encodeURIComponent(`Order Enquiry – Design #${activeDesignId} – ${teamName}`);
-    const body = encodeURIComponent(buildOrderMessage(activeDesignId, teamName, brandName, notes, roster).replace(/\*/g, '').replace(/_/g, ''));
+    const body = encodeURIComponent(buildOrderMessage(activeDesignId, teamName, brandName, sleeve, notes, roster, hasLogo).replace(/\*/g, '').replace(/_/g, ''));
     window.open(`mailto:deziresportswearweb@gmail.com?subject=${subject}&body=${body}`, '_self');
     closeDesignModal();
-    showToast('✅ Opening email with your order!');
+    showToast(hasLogo ? '✅ Order opened — remember to attach your logo to the email!' : '✅ Opening email with your order!');
   });
 
   /* =============================================

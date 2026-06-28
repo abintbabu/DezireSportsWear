@@ -376,14 +376,16 @@ a { text-decoration: none; color: inherit; }
 
 .champions-text {
   font-family: 'Permanent Marker', cursive;
-  background: linear-gradient(135deg, #FF3E83 0%, #FCE22A 50%, #00E5FF 100%);
+  background: linear-gradient(135deg, #FF2D6E 0%, #C2185B 45%, #7B2FF7 75%, #0091EA 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
+  color: transparent;
   display: inline-block;
   transform: rotate(-2deg);
   margin-top: 0.5rem;
   letter-spacing: 1px;
-  filter: drop-shadow(0 4px 12px rgba(255, 62, 131, 0.25));
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.28));
   font-size: 1.15em;
   line-height: 1.1;
 }
@@ -2214,6 +2216,13 @@ body.modal-open { overflow: hidden; }
 @media (max-width: 500px) { .mf-row-2 { grid-template-columns: 1fr; } }
 
 .mf-roster .roster-box { background: var(--grey-100); }
+
+.logo-upload-hint {
+  font-size: 0.72rem;
+  color: var(--grey-400);
+  line-height: 1.4;
+  margin-top: 2px;
+}
 
 .logo-upload-label {
   display: flex;
