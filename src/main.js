@@ -1,4 +1,5 @@
 import './style.css';
+import { designs } from './designs.js';
 
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -559,23 +560,237 @@ document.addEventListener('DOMContentLoaded', () => {
   addPlayerBtn.addEventListener('click', addPlayerRow);
 
   /* =============================================
-     FORM SUBMISSION
+     DESIGNS GALLERY
+     ============================================= */
+  const designsGrid      = document.getElementById('designs-grid');
+  const loadMoreBtn      = document.getElementById('load-more-btn');
+  const loadMoreWrap     = document.getElementById('load-more-wrap');
+  const designsCountLbl  = document.getElementById('designs-count-label');
+  const designSearchInput= document.getElementById('design-search');
+
+  const PAGE_SIZE = 20;
+  let currentPage = 1;
+  let filteredDesigns = designs.slice();
+
+  function renderDesigns() {
+    const pageItems = filteredDesigns.slice(0, currentPage * PAGE_SIZE);
+    designsGrid.innerHTML = pageItems.map(d => `
+      <div class="design-card reveal-flip" data-id="${d.id}" tabindex="0" role="button" aria-label="Design ${d.id}">
+        <div class="design-img-wrap">
+          <img src="${d.thumb}" alt="Jersey Design #${d.id}" loading="lazy" draggable="false">
+          <div class="design-wm-layer" aria-hidden="true">DEZIRE SPORTS WEAR</div>
+        </div>
+        <div class="design-card-footer">
+          <span class="design-num">Design #${d.id}</span>
+          <button class="btn-customize" data-id="${d.id}">Customize →</button>
+        </div>
+      </div>
+    `).join('');
+
+    // Re-observe reveal elements
+    designsGrid.querySelectorAll('.reveal-flip').forEach(el => revealObserver.observe(el));
+
+    // Bind card & button clicks
+    designsGrid.querySelectorAll('.design-card').forEach(card => {
+      card.addEventListener('click', e => {
+        if (!e.target.closest('.btn-customize')) openDesignModal(card.dataset.id);
+      });
+      card.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDesignModal(card.dataset.id); }
+      });
+    });
+    designsGrid.querySelectorAll('.btn-customize').forEach(btn => {
+      btn.addEventListener('click', e => { e.stopPropagation(); openDesignModal(btn.dataset.id); });
+    });
+
+    const showing = pageItems.length;
+    designsCountLbl.textContent = `Showing ${showing} of ${filteredDesigns.length} designs`;
+    if (showing >= filteredDesigns.length) {
+      loadMoreWrap.style.display = 'none';
+    } else {
+      loadMoreWrap.style.display = 'flex';
+    }
+  }
+
+  loadMoreBtn.addEventListener('click', () => { currentPage++; renderDesigns(); });
+
+  designSearchInput.addEventListener('input', () => {
+    const q = designSearchInput.value.trim().replace(/[^0-9]/g, '');
+    filteredDesigns = q ? designs.filter(d => d.id.includes(q)) : designs.slice();
+    currentPage = 1;
+    renderDesigns();
+  });
+
+  renderDesigns();
+
+  /* =============================================
+     DESIGN CUSTOMIZER MODAL
+     ============================================= */
+  const designModal   = document.getElementById('design-modal');
+  const modalClose    = document.getElementById('modal-close');
+  const modalImg      = document.getElementById('modal-design-img');
+  const modalDesignId = document.getElementById('modal-design-id');
+  const modalRosterContainer = document.getElementById('modal-roster-container');
+  const modalAddPlayer= document.getElementById('modal-add-player');
+  const modalRosterCount = document.getElementById('modal-roster-count');
+  const modalLogoFile = document.getElementById('modal-logo-file');
+  const modalLogoLabelText = document.getElementById('modal-logo-label-text');
+
+  let modalPlayerIndex = 0;
+  let activeDesignId = null;
+
+  function openDesignModal(id) {
+    const design = designs.find(d => d.id === id);
+    if (!design) return;
+    activeDesignId = id;
+    modalImg.src = design.full;
+    modalImg.alt = `Jersey Design #${id}`;
+    modalDesignId.textContent = `Design #${id}`;
+    document.getElementById('modal-team-name').value = '';
+    document.getElementById('modal-branding-name').value = '';
+    document.getElementById('modal-notes').value = '';
+    modalLogoLabelText.textContent = 'Upload logo…';
+    modalLogoFile.value = '';
+    modalRosterContainer.innerHTML = '';
+    modalPlayerIndex = 0;
+    addModalPlayerRow();
+    designModal.classList.add('open');
+    document.body.classList.add('modal-open');
+  }
+
+  function closeDesignModal() {
+    designModal.classList.remove('open');
+    document.body.classList.remove('modal-open');
+  }
+
+  modalClose.addEventListener('click', closeDesignModal);
+  designModal.addEventListener('click', e => { if (e.target === designModal) closeDesignModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDesignModal(); });
+
+  modalLogoFile.addEventListener('change', () => {
+    const f = modalLogoFile.files[0];
+    modalLogoLabelText.textContent = f ? f.name : 'Upload logo…';
+  });
+
+  function updateModalRosterCount() {
+    const n = modalRosterContainer.querySelectorAll('.roster-row').length;
+    modalRosterCount.textContent = `${n} player${n !== 1 ? 's' : ''}`;
+  }
+
+  function addModalPlayerRow() {
+    modalPlayerIndex++;
+    const row = document.createElement('div');
+    row.className = 'roster-row';
+    row.innerHTML = `
+      <div class="row-num">${modalPlayerIndex}</div>
+      <input type="text" placeholder="Player name" aria-label="Player Name">
+      <input type="number" placeholder="No." min="0" max="999" aria-label="Jersey Number">
+      <select aria-label="Size">
+        <option value="" disabled selected>Size</option>
+        <option>XS</option><option>S</option><option>M</option>
+        <option>L</option><option>XL</option><option>XXL</option><option>XXXL</option>
+      </select>
+      <button type="button" class="remove-btn" aria-label="Remove">✕</button>
+    `;
+    row.querySelector('.remove-btn').addEventListener('click', () => {
+      row.remove();
+      modalRosterContainer.querySelectorAll('.roster-row').forEach((r, i) => {
+        const numEl = r.querySelector('.row-num');
+        if (numEl) numEl.textContent = i + 1;
+      });
+      updateModalRosterCount();
+    });
+    modalRosterContainer.appendChild(row);
+    updateModalRosterCount();
+  }
+
+  modalAddPlayer.addEventListener('click', addModalPlayerRow);
+
+  function buildOrderMessage(designId, teamName, brandName, notes, roster) {
+    const rosterLines = roster.map((p, i) =>
+      `  ${i + 1}. ${p.name || '—'} | #${p.num || '—'} | ${p.size || '—'}`
+    ).join('\n');
+    return [
+      `*DEZIRE SPORTS WEAR — ORDER ENQUIRY*`,
+      ``,
+      `Design:  #${designId}`,
+      `Team:    ${teamName || '—'}`,
+      brandName ? `Branding: ${brandName}` : null,
+      ``,
+      `*Roster (${roster.length} player${roster.length !== 1 ? 's' : ''}):*`,
+      rosterLines,
+      notes ? `\nNotes: ${notes}` : null,
+      ``,
+      `_(Logo will be shared as image in this thread)_`,
+    ].filter(l => l !== null).join('\n');
+  }
+
+  function collectModalRoster() {
+    const rows = modalRosterContainer.querySelectorAll('.roster-row');
+    return Array.from(rows).map(row => {
+      const inputs = row.querySelectorAll('input');
+      const sel = row.querySelector('select');
+      return { name: inputs[0]?.value.trim(), num: inputs[1]?.value.trim(), size: sel?.value };
+    });
+  }
+
+  document.getElementById('modal-submit-wa').addEventListener('click', () => {
+    const teamName  = document.getElementById('modal-team-name').value.trim();
+    const brandName = document.getElementById('modal-branding-name').value.trim();
+    const notes     = document.getElementById('modal-notes').value.trim();
+    if (!teamName) { document.getElementById('modal-team-name').focus(); showToast('⚠️ Enter your team name!'); return; }
+    const roster = collectModalRoster();
+    const msg = buildOrderMessage(activeDesignId, teamName, brandName, notes, roster);
+    window.open(`https://wa.me/919809080973?text=${encodeURIComponent(msg)}`, '_blank');
+    closeDesignModal();
+    showToast('✅ Opening WhatsApp with your order!');
+  });
+
+  document.getElementById('modal-submit-email').addEventListener('click', () => {
+    const teamName  = document.getElementById('modal-team-name').value.trim();
+    const brandName = document.getElementById('modal-branding-name').value.trim();
+    const notes     = document.getElementById('modal-notes').value.trim();
+    if (!teamName) { document.getElementById('modal-team-name').focus(); showToast('⚠️ Enter your team name!'); return; }
+    const roster = collectModalRoster();
+    const subject = encodeURIComponent(`Order Enquiry – Design #${activeDesignId} – ${teamName}`);
+    const body = encodeURIComponent(buildOrderMessage(activeDesignId, teamName, brandName, notes, roster).replace(/\*/g, '').replace(/_/g, ''));
+    window.open(`mailto:deziresportswearweb@gmail.com?subject=${subject}&body=${body}`, '_self');
+    closeDesignModal();
+    showToast('✅ Opening email with your order!');
+  });
+
+  /* =============================================
+     ORDER FORM — design pre-fill from gallery
+     ============================================= */
+  const selectedDesignInput = document.getElementById('selected-design');
+  const summaryDesign = document.getElementById('summary-design');
+
+  // expose so gallery cards can prefill the form via "Use this design" path
+  window._selectDesignForForm = function(id) {
+    selectedDesignInput.value = id;
+    if (summaryDesign) summaryDesign.textContent = `#${id}`;
+  };
+
+  /* =============================================
+     FORM SUBMISSION — real WhatsApp + Email
      ============================================= */
   const form = document.getElementById('order-form');
 
-  form.addEventListener('submit', e => {
-    e.preventDefault();
+  function validateAndCollectForm() {
     const sport      = sportInput.value;
     const material   = materialInput.value;
     const teamName   = document.getElementById('team-name').value.trim();
     const contactName= document.getElementById('contact-name').value.trim();
     const phone      = document.getElementById('phone').value.trim();
+    const designId   = selectedDesignInput?.value || '';
+    const email      = document.getElementById('email').value.trim();
+    const notes      = document.getElementById('notes').value.trim();
 
-    if (!sport)        { showToast('⚠️ Please select a sport first!');       scrollToId('sports');    return; }
-    if (!material)     { showToast('⚠️ Please select a material!');           scrollToId('materials'); return; }
-    if (!teamName)     { document.getElementById('team-name').focus();       showToast('⚠️ Enter your team name!');    return; }
-    if (!contactName)  { document.getElementById('contact-name').focus();   showToast('⚠️ Enter your name!');         return; }
-    if (!phone)        { document.getElementById('phone').focus();           showToast('⚠️ Enter your phone number!'); return; }
+    if (!sport)        { showToast('⚠️ Please select a sport first!');       scrollToId('sports');    return null; }
+    if (!material)     { showToast('⚠️ Please select a material!');           scrollToId('materials'); return null; }
+    if (!teamName)     { document.getElementById('team-name').focus();       showToast('⚠️ Enter your team name!');    return null; }
+    if (!contactName)  { document.getElementById('contact-name').focus();   showToast('⚠️ Enter your name!');         return null; }
+    if (!phone)        { document.getElementById('phone').focus();           showToast('⚠️ Enter your phone number!'); return null; }
 
     let valid = true;
     rosterContainer.querySelectorAll('.roster-row').forEach(row => {
@@ -584,34 +799,84 @@ document.addEventListener('DOMContentLoaded', () => {
         else inp.style.borderColor = '';
       });
     });
-    if (!valid) { showToast('⚠️ Please complete all player details!'); return; }
+    if (!valid) { showToast('⚠️ Please complete all player details!'); return null; }
 
-    const submitBtn = document.getElementById('submit-btn');
-    submitBtn.textContent = 'Submitting...';
-    submitBtn.disabled = true;
+    const roster = Array.from(rosterContainer.querySelectorAll('.roster-row')).map(row => {
+      const inputs = row.querySelectorAll('input');
+      const sel = row.querySelector('select');
+      return { name: inputs[0]?.value.trim(), num: inputs[1]?.value.trim(), size: sel?.value };
+    });
 
-    setTimeout(() => {
-      showToast('✅ Enquiry submitted! Anoop will reach out to you soon.');
-      form.reset();
-      sportCards.forEach(c => c.classList.remove('selected'));
-      materialCards.forEach(c => c.classList.remove('selected'));
-      sportInput.value = ''; materialInput.value = '';
-      sportValText.textContent = 'Not selected yet';
-      materialValText.textContent = 'Not selected yet';
-      dispSport.classList.remove('active');
-      dispMaterial.classList.remove('active');
-      rosterContainer.innerHTML = '';
-      playerIndex = 0;
-      addPlayerRow();
-      
-      // Reset spec sheet
-      document.getElementById('summary-sport').textContent = '—';
-      document.getElementById('summary-material').textContent = '—';
-      updateRosterSummary();
-      
-      submitBtn.textContent = 'Submit Enquiry  →';
-      submitBtn.disabled = false;
-    }, 1200);
+    return { sport, material, teamName, contactName, phone, email, notes, designId, roster };
+  }
+
+  function buildFullOrderMessage(data) {
+    const rosterLines = data.roster.map((p, i) =>
+      `  ${i + 1}. ${p.name} | #${p.num} | ${p.size}`
+    ).join('\n');
+    return [
+      `*DEZIRE SPORTS WEAR — ORDER ENQUIRY*`,
+      ``,
+      data.designId ? `Design:   #${data.designId}` : null,
+      `Sport:    ${data.sport}`,
+      `Material: ${data.material}`,
+      `Team:     ${data.teamName}`,
+      `Contact:  ${data.contactName} | ${data.phone}`,
+      data.email ? `Email:    ${data.email}` : null,
+      ``,
+      `*Roster (${data.roster.length} player${data.roster.length !== 1 ? 's' : ''}):*`,
+      rosterLines,
+      data.notes ? `\nNotes: ${data.notes}` : null,
+    ].filter(l => l !== null).join('\n');
+  }
+
+  function resetForm() {
+    form.reset();
+    sportCards.forEach(c => c.classList.remove('selected'));
+    materialCards.forEach(c => c.classList.remove('selected'));
+    sportInput.value = ''; materialInput.value = '';
+    if (selectedDesignInput) selectedDesignInput.value = '';
+    sportValText.textContent = 'Not selected yet';
+    materialValText.textContent = 'Not selected yet';
+    dispSport.classList.remove('active');
+    dispMaterial.classList.remove('active');
+    rosterContainer.innerHTML = '';
+    playerIndex = 0;
+    addPlayerRow();
+    document.getElementById('summary-sport').textContent = '—';
+    document.getElementById('summary-material').textContent = '—';
+    if (summaryDesign) summaryDesign.textContent = 'Not selected';
+    updateRosterSummary();
+  }
+
+  // WhatsApp submit (primary button)
+  document.getElementById('submit-btn').addEventListener('click', e => {
+    if (e.target.closest('form')) return; // let form submit handle if needed
+    const data = validateAndCollectForm();
+    if (!data) return;
+    const msg = buildFullOrderMessage(data);
+    window.open(`https://wa.me/919809080973?text=${encodeURIComponent(msg)}`, '_blank');
+    showToast('✅ Opening WhatsApp with your order!');
+    resetForm();
+  });
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const channel = document.activeElement?.dataset?.channel;
+    const data = validateAndCollectForm();
+    if (!data) return;
+    const msg = buildFullOrderMessage(data);
+
+    if (channel === 'email') {
+      const subject = encodeURIComponent(`Order Enquiry – ${data.teamName} – ${data.sport}`);
+      const body = encodeURIComponent(msg.replace(/\*/g, '').replace(/_/g, ''));
+      window.open(`mailto:deziresportswearweb@gmail.com?subject=${subject}&body=${body}`, '_self');
+      showToast('✅ Opening email with your order!');
+    } else {
+      window.open(`https://wa.me/919809080973?text=${encodeURIComponent(msg)}`, '_blank');
+      showToast('✅ Opening WhatsApp with your order!');
+    }
+    resetForm();
   });
 
   function scrollToId(id) {
